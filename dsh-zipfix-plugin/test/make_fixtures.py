@@ -84,7 +84,7 @@ def main():
 
     # ---------------------------------------------------------------- 案例 1
     # GBK 文件名 + flag=0x0000，且所有条目包在与 ZIP 同名的顶层目录里（可测剥离）。
-    case1_root = '示例区示例镇示范幼儿园智能化工程-二审资料'
+    case1_root = '项目资料-二审资料'
     case1_zip = os.path.join(out, f'{case1_root}.zip')
     entries = [(f'{case1_root}/'.encode('gbk'), b'')]
     dirs = [
@@ -98,7 +98,7 @@ def main():
     for index in range(50):
         dirname = dirs[index % len(dirs)]
         payload = f'案例1 第 {index + 1} 份文件内容\nfake content {index}\n'.encode('utf-8') * (1 + index % 3)
-        name = f'{case1_root}/{dirname}/附件{index + 1}：示例区示范幼儿园智能化工程资料.docx'
+        name = f'{case1_root}/{dirname}/附件{index + 1}：工程资料.docx'
         entries.append((name.encode('gbk'), payload))
         files += 1
     write_zip(case1_zip, entries, flag=0x0000)
@@ -116,9 +116,9 @@ def main():
     case3_dir = os.path.join(out, 'case3_damaged')
     reset_dir(case3_dir)
     case3_names = [
-        '附件1：示例区2026年公共视频监控运维服务项目方案. (1).docx',
-        '附件2：示例区2026年公共视频监控运维服务项目预算清单.xlsx',
-        '关于审核示例区2026年公共视频监控运维服务项目的函.pdf',
+        '附件1：项目方案. (1).docx',
+        '附件2：预算清单.xlsx',
+        '审核说明.pdf',
     ]
     case3_sizes = [168865, 15048, 122820]
     case3_entries = []
@@ -135,7 +135,7 @@ def main():
             'size': size,
             'crc32': f'{zlib.crc32(payload) & 0xFFFFFFFF:08X}',
         })
-    case3_zip = os.path.join(out, '关于审核示例区2026年公共视频监控运维服务项目的函.zip')
+    case3_zip = os.path.join(out, '审核说明.zip')
     write_zip(case3_zip, case3_entries, flag=0x0008)
     manifest['fixtures']['case3'] = {
         'zip': os.path.basename(case3_zip),
@@ -149,8 +149,8 @@ def main():
     case2_dir = os.path.join(out, 'case2_damaged')
     reset_dir(case2_dir)
     case2_names = [
-        '附件1：“示例项目”运维费汇总表.xlsx',
-        '附件2：“示例项目”项目运行维护方案.docx',
+        '附件1：运维费汇总表.xlsx',
+        '附件2：运行维护方案.docx',
     ]
     for name in case2_names:
         damaged = name.encode('gbk').decode('utf-8', 'replace')
@@ -166,7 +166,7 @@ def main():
     form_a_dir = os.path.join(out, 'formA_dir')
     reset_dir(form_a_dir)
     form_a_names = [
-        '示例区示例镇示范幼儿园智能化工程-二审资料',
+        '项目资料-二审资料',
         '附件1：预算书.xlsx',
         '附件2：合同扫描件.pdf',
     ]
@@ -186,7 +186,7 @@ def main():
     # ---------------------------------------------------------------- 形态 A2 目录（Latin-1）
     form_a2_dir = os.path.join(out, 'formA2_dir')
     reset_dir(form_a2_dir)
-    form_a2_names = ['示例视频监控运维服务项目方案.docx', '预算清单.xlsx']
+    form_a2_names = ['项目方案.docx', '预算清单.xlsx']
     form_a2_expected = []
     for index, name in enumerate(form_a2_names):
         mojibake = name.encode('gbk').decode('latin-1')
@@ -210,7 +210,7 @@ def main():
 
     # ---------------------------------------------------------------- 特殊字符名字
     special_zip = os.path.join(out, 'special_chars.zip')
-    special_names = ['资料/附件1：“示例项目”运维费汇总表.xlsx', '资料/附件2：《验收报告》（终稿）.pdf']
+    special_names = ['资料/附件1：“运维费”汇总表.xlsx', '资料/附件2：《验收报告》（终稿）.pdf']
     write_zip(special_zip, [(name.encode('gbk'), f'payload {index}'.encode()) for index, name in enumerate(special_names)])
     manifest['fixtures']['specialChars'] = {'zip': os.path.basename(special_zip), 'names': special_names}
 
@@ -219,7 +219,7 @@ def main():
     docx_document = (
         '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
         '<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body>'
-        '<w:p><w:r><w:t>示例项目运行维护方案</w:t></w:r></w:p>'
+        '<w:p><w:r><w:t>运行维护方案</w:t></w:r></w:p>'
         '<w:p><w:r><w:t>一、项目概况</w:t></w:r></w:p>'
         '</w:body></w:document>'
     )
@@ -227,7 +227,7 @@ def main():
         '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
         '<Properties xmlns="http://schemas.openxmlformats.org/officeDocument/2006/extended-properties">'
         '<TitlesOfParts><vt:vector xmlns:vt="http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes" size="2">'
-        '<vt:lpstr>示例项目运行维护方案</vt:lpstr><vt:lpstr>运行维护</vt:lpstr>'
+        '<vt:lpstr>运行维护方案</vt:lpstr><vt:lpstr>运行维护</vt:lpstr>'
         '</vt:vector></TitlesOfParts></Properties>'
     )
     write_zip_utf8(docx_path, [
@@ -240,7 +240,7 @@ def main():
     xlsx_shared = (
         '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
         '<sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">'
-        '<si><t>示例项目运维费汇总表</t></si><si><t>1.硬件维护费</t></si><si><t>2.软件运维费用</t></si>'
+        '<si><t>运维费汇总表</t></si><si><t>1.硬件维护费</t></si><si><t>2.软件运维费用</t></si>'
         '</sst>'
     )
     xlsx_app = (
@@ -259,7 +259,7 @@ def main():
     # 目标 docx 对应的「已解压坏」副本（供指纹验证 + 内容反推联调）
     verify_dir = os.path.join(out, 'verify_docx')
     reset_dir(verify_dir)
-    verify_name = '示例项目运行维护方案.docx'
+    verify_name = '运行维护方案.docx'
     verify_damaged = verify_name.encode('gbk').decode('utf-8', 'replace')
     with open(docx_path, 'rb') as source:
         docx_bytes = source.read()
@@ -273,7 +273,7 @@ def main():
     }
     manifest['fixtures']['xlsxTitles'] = {
         'document': 'xlsx_target.xlsx',
-        'expect_titles_contain': ['示例项目运维费汇总表', '汇总表', '1.硬件维护费'],
+        'expect_titles_contain': ['运维费汇总表', '汇总表', '1.硬件维护费'],
     }
 
     with open(os.path.join(out, 'manifest.json'), 'w', encoding='utf-8') as handle:

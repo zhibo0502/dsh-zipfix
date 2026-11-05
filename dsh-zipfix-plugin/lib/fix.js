@@ -7,7 +7,6 @@
  * 3. 目标同名时自动加 `_fixed` 序号后缀，绝不静默覆盖。
  */
 
-import fs from 'node:fs';
 import fsp from 'node:fs/promises';
 import path from 'node:path';
 import {
@@ -30,7 +29,7 @@ import {
   tryReverseName,
 } from './detect.js';
 import { decodeUtf8Replacement, encodeText, hasFffd, countFffd } from './encoding.js';
-import { buildReport, timestamp, writeReportFiles } from './report.js';
+import { buildReport, writeReportFiles } from './report.js';
 
 /* ------------------------------------------------------------------ *
  * 通用小工具
@@ -81,7 +80,6 @@ async function uniqueNestedPath(root, relative, { suffix = '_fixed' } = {}) {
   const { dirPart, stem, ext, isDir } = splitName(relative);
   let name = isDir ? `${dirPart}${stem}` : `${dirPart}${stem}${ext}`;
   let attempt = 1;
-  // eslint-disable-next-line no-constant-condition
   while (true) {
     const target = path.join(root, name);
     const exists = await pathExists(target);
@@ -96,7 +94,6 @@ async function uniqueNestedPath(root, relative, { suffix = '_fixed' } = {}) {
 async function uniqueTargetPath(dir, desiredSegment, { isDir = false, suffix = '_fixed' } = {}) {
   let candidate = desiredSegment;
   let attempt = 1;
-  // eslint-disable-next-line no-constant-condition
   while (true) {
     const target = path.join(dir, candidate);
     const exists = await pathExists(target);

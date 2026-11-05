@@ -49,7 +49,7 @@ function textContent(lines) {
 
 function rowLines(rows, limit = 8) {
   if (!Array.isArray(rows) || rows.length === 0) return [];
-  const lines = ['', '示例：'];
+  const lines = ['', '样例：'];
   for (const row of rows.slice(0, limit)) {
     const original = truncate(row.original ?? '', 44);
     const fixed = truncate(row.fixed ?? '', 44);

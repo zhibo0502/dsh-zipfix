@@ -2,10 +2,10 @@
 node_modules/
 
 # 测试生成的夹具（程序生成，不入库）
-test/fixtures/
+**/test/fixtures/
 
 # 内部验收证据（含真实文件清单，未公开）
-verify-verifier/
+**/verify-verifier/
 
 # 插件运行产物
 _zipfix-reports/
@@ -14,3 +14,9 @@ _zipfix-reports/
 # 系统文件
 .DS_Store
 Thumbs.db
+
+# 工具缓存 / 形式化验证产物
+.tools/
+*.jar
+*.tla.out
+spec/states/

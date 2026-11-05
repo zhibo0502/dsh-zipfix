@@ -111,7 +111,6 @@ export async function writeReportFiles(dir, stem, report) {
   await fsp.mkdir(dir, { recursive: true });
   let attempt = 1;
   let base = path.join(dir, `zipfix-${stem}-${timestamp()}`);
-  // eslint-disable-next-line no-constant-condition
   while (true) {
     const markdownPath = `${base}.md`;
     const csvPath = `${base}.csv`;

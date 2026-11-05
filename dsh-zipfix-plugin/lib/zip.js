@@ -163,7 +163,6 @@ export class ZipCatalog {
     if (eocdInTail < 0) eocdInTail = fallback;
     if (eocdInTail < 0) throw new Error('不是 ZIP 文件：找不到中央目录结尾记录（EOCD）');
 
-    const eocdPos = tailStart + eocdInTail;
     let entriesTotal = u16(tail, eocdInTail + 10);
     let cdSize = u32(tail, eocdInTail + 12);
     let cdOffset = u32(tail, eocdInTail + 16);
@@ -474,11 +473,6 @@ export async function verifyEntry(catalog, entry, { signal } = {}) {
 /* ------------------------------------------------------------------ *
  * 写出「修复版 ZIP」
  * ------------------------------------------------------------------ */
-
-function dosDateTime(modTime, modDate) {
-  // 原样保留源条目的 DOS 时间戳（本地时区语义由源数据决定）
-  return { modTime, modDate };
-}
 
 function buildLocalHeader({
   versionNeeded,

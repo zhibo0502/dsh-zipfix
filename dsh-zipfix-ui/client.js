@@ -46,7 +46,7 @@ window.__ModuleLoader__.load({
       'field.nonAscii': '非 ASCII 条目',
       'field.irreversible': '含 U+FFFD 条目',
       'field.size': '文件大小',
-      'section.samples': '示例（原名字 → 新名字）',
+      'section.samples': '样例（原名字 → 新名字）',
       'samples.empty': '没有可展示的条目（可能全部是 ASCII 名字）',
       'section.options': '修复选项',
       'option.stripRoot': '剥离与 ZIP 同名的冗余顶层目录',

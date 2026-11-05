@@ -13,7 +13,6 @@ import {
   decodeUtf8Replacement,
   encodeText,
   isAscii,
-  isCjk,
   looksLikeChineseText,
   cjkRatio,
   countFffd,
@@ -349,7 +348,7 @@ export function sanitizePathSegment(segment) {
  * @returns {{safe: boolean, name: string, reason?: string}}
  */
 export function sanitizeEntryName(raw) {
-  let name = raw.replace(/\\/g, '/');
+  const name = raw.replace(/\\/g, '/');
   if (name.length === 0) return { safe: false, name, reason: '空文件名' };
   if (name.startsWith('/') || /^[A-Za-z]:/.test(name)) {
     return { safe: false, name, reason: '绝对路径条目（ZIP Slip 风险）' };

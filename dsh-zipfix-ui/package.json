@@ -1,6 +1,6 @@
 {
   "name": "dsh-zipfix-ui",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "private": true,
   "description": "ZIP 中文文件名修复器的侧边栏 UI：上传 ZIP → 编码体检 → 生成可转发的修复版 ZIP 或按正确文件名解压到指定目录。",
   "type": "module",

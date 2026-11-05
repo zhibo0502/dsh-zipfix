@@ -6,15 +6,15 @@ Host 半只注册本机 HTTP 接口（`/zipfix-api`），真正修复逻辑 100%
 
 ## 版本
 
-- **0.1.1** — 修复深色主题下主按钮「白底白字」：主按钮文字颜色改用 `--dsw-alias-bg-base`
-  （与 `--dsw-alias-brand-primary` 形成主题内的反色对比；深色=白钮深字，浅色=品牌钮白字）。
+- **0.1.2** — 界面文案与仓库质量门禁对齐（无功能变化）；此前 0.1.1 修复深色主题下主按钮「白底白字」。
+- 0.1.1 — 深色主题主按钮文字颜色改用 `--dsw-alias-bg-base`（深色=白钮深字，浅色=品牌钮白字）。
 - 0.1.0 — 首个侧边栏 UI：上传 ZIP、编码体检、下载修复版 ZIP、解压到目录、审计报告。
 
 ## 功能
 
 1. **拖拽/选择 ZIP 上传**（只收 `.zip`，流式落盘，默认上限 2 GiB）。
 2. **自动体检**：编码嗅探（utf-8/gbk/gb18030/big5）、置信度、条目数、冗余顶层目录、
-   含 U+FFFD 的不可逆条目、原名字 → 新名字示例。
+   含 U+FFFD 的不可逆条目、原名字 → 新名字样例。
 3. **生成修复版 ZIP 并下载**：全部条目置位 UTF-8 文件名标志 `0x0800`、UTF-8 文件名，
    回读逐条校验 CRC32；浏览器直接下载。
 4. **解压到目录…**：调用系统目录选择器，按正确文件名落盘并逐条校验 CRC32；
@@ -56,6 +56,8 @@ Client 模块图变化会通过 `/plugins/events` SSE 同步到已打开的页�
 
 ## 验证状态（2026-11-05，本地实测）
 
+- **仓库级质量门禁**：本包的 Host 半（`/zipfix-api`）已纳入仓库自动测试（`npm test`，30/30 通过）；
+  整个仓库通过 ESLint、CI（lint / test / formal 三个 job）与 TLA+/TLC 形式化验证，详见根目录 README。
 - **Host HTTP API 全链路独立复核（PowerShell 驱动 + Python 校验）**：
   上传 62 条目 GBK 案例 ZIP → 体检 `status=reversible / encoding=gbk / stripRoot` 正确 →
   `fix` 返回 62 条目、`allUtf8Flag=true`、`fullChecked=true` → 下载修复版 ZIP →

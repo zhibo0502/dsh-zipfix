@@ -63,17 +63,17 @@ plugin_manager { action: "remove_bundle", target: "dsh-zipfix-ui" }
 | `zipfix_match_source` | 形态 B 最优解：按 `(size, CRC32)` 与源 ZIP 唯一配对改名，唯一命中才动 |
 | `zipfix_verify_names` | 内容反推 + 编码指纹验证；只标记「已验证」的候选名，不改文件 |
 
-示例：
+样例：
 
 > 这个 ZIP 解压出来文件名全是乱码，帮我看看是什么问题，然后修好，再生成一个别人拿去也不会乱码的 ZIP。
-> `<你的目录>/示例项目资料.zip`
+> `<你的目录>/项目资料.zip`
 
 > 这个文件夹里的文件名已经是 `�` 了，源压缩包还在，帮我按内容配对改回来。
 > 目录：`<你的目录>/受损项目`；源包：`<你的目录>/源包.zip`
 
 ### 2. 侧边栏 UI
 
-安装 `dsh-zipfix-ui` 后，左侧边栏出现 **「ZIP 修复」**：拖拽/选择 ZIP → 自动体检（编码/置信度/条目数/不可逆条目/改名示例）→
+安装 `dsh-zipfix-ui` 后，左侧边栏出现 **「ZIP 修复」**：拖拽/选择 ZIP → 自动体检（编码/置信度/条目数/不可逆条目/改名样例）→
 **生成修复版 ZIP 并下载** 或 **解压到目录**（系统目录选择器，逐条 CRC32 校验）；报告可在页面打开或下载 CSV。
 
 ## 实现要点
@@ -85,18 +85,26 @@ plugin_manager { action: "remove_bundle", target: "dsh-zipfix-ui" }
 - `lib/report.js`：Markdown + CSV 审计报告。
 - `lib/webapi.js` + `dsh-zipfix-ui`：`/zipfix-api` 上传/修复/下载接口与侧边栏页面（同源 token + Origin/Host 校验，2 GiB 上传上限，临时目录 24h 清理）。
 
-## 自测
+## 自测与 CI
 
 ```powershell
+# 仓库根目录（推荐，自动带上仓库级 lint/formal 脚本）
+npm test
+
+# 或只跑本包自测（需要 Python 3；ZIPFIX_PYTHON 可指定解释器）
 cd dsh-zipfix-plugin
-node test/run-tests.mjs        # 需要 Python 3（独立编码器生成夹具；ZIPFIX_PYTHON 可指定解释器）
+node test/run-tests.mjs
 ```
 
 覆盖：62 条目 GBK 案例（冗余顶层目录剥离、50 文件逐条 CRC32、修复版 ZIP 全 `0x800` 回读）、`flag=0x0008`、
 合规 UTF-8 / ASCII（无需修复零改动）、形态 A/A2 目录改名（含嵌套）、源包 CRC 配对、纯 `U+FFFD` 不擅自改名、
-指纹与 Python 逐字符一致、OOXML 标题抽取、ZIP64 重建、目标已存在绝不覆盖、审计报告路径与目录隔离等。
+指纹与 Python 逐字符一致、OOXML 标题抽取、ZIP64 重建、目标已存在绝不覆盖、审计报告路径与目录隔离，
+以及 `/zipfix-api` 的「上传 → 体检 → 生成修复版 ZIP → 下载回读校验」「解压到目录 + 安全边界」集成测试。
 
-当前 **28/28 通过**。仓库中的测试夹具全部为**合成数据**，示例项目名已匿名化为「示例」，不含任何真实用户文件内容。
+当前 **30/30 通过**。仓库中的测试夹具全部为**合成数据**，文件名使用中性占位（项目资料 / 合同文件 / 预算清单 / 图纸等），
+不含任何真实用户文件内容。
+
+仓库级质量门禁（ESLint、CI 三 job、TLA+/TLC 形式化验证）见根目录 [README](../README.md)；形式化规格见 [`spec/`](../spec/README.md)。
 
 ## 验证与限制
 

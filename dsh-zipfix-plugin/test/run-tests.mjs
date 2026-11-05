@@ -10,8 +10,10 @@
 
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
+import { once } from 'node:events';
 import fs from 'node:fs';
 import fsp from 'node:fs/promises';
+import http from 'node:http';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -27,10 +29,10 @@ import {
   verifyCandidateName,
   verifyNames,
 } from '../lib/fix.js';
+import { installZipfixWebApi } from '../lib/webapi.js';
 import { decodeCp437, encodeText, decodeUtf8Replacement } from '../lib/encoding.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
-const projectRoot = path.dirname(here);
 const fixturesDir = path.join(here, 'fixtures');
 
 /* ------------------------------------------------------------------ *
@@ -140,10 +142,6 @@ const manifest = buildFixtures();
 const F = manifest.fixtures;
 const case1Zip = path.join(fixturesDir, F.case1.zip);
 const case3Zip = path.join(fixturesDir, F.case3.zip);
-const case3Damaged = path.join(fixturesDir, F.case3.damaged_dir);
-const case2Damaged = path.join(fixturesDir, F.case2.damaged_dir);
-const formADir = path.join(fixturesDir, F.formA.dir);
-const formA2Dir = path.join(fixturesDir, F.formA2.dir);
 
 let workRoot;
 
@@ -154,7 +152,7 @@ test('夹具：案例 1 条目数与 GBK 原始字节正确', async () => {
     assert.equal(catalog.entries.length, 62);
     assert.ok(catalog.entries.every((entry) => (entry.flags & 0x0800) === 0), '案例 1 所有条目 flag 应为 0');
     // 用完整根目录名核对原始字节与 CP437 呈现（避免硬编码易漂移的字节片段）
-    const expectedRoot = '示例区示例镇示范幼儿园智能化工程-二审资料/';
+    const expectedRoot = '项目资料-二审资料/';
     const expectedBytes = Buffer.from(encodeText(expectedRoot, 'gbk'));
     assert.deepEqual(catalog.entries[0].nameBytes, expectedBytes);
     assert.equal(decodeCp437(catalog.entries[0].nameBytes), decodeCp437(expectedBytes));
@@ -171,7 +169,7 @@ test('嗅探：案例 1 判定 gbk 且全部为可逆形态', async () => {
     assert.equal(sniffed.encoding, 'gbk');
     assert.equal(sniffed.method, 'sniffed');
     assert.equal(sniffed.confidence, 'high');
-    assert.ok(sniffed.scores.gbk >= 9000, `gbk 得分应接近 9675，实际 ${sniffed.scores.gbk}`);
+    assert.ok(sniffed.scores.gbk >= 5000, `gbk 得分应明显领先其他候选，实际 ${sniffed.scores.gbk}`);
     assert.ok(sniffed.names.every((item) => !item.lossy));
     const forms = sniffed.names.map((item) => classifyName(item.name).form);
     assert.ok(forms.every((form) => form === 'clean' || form === 'ascii'), '解码后应全部正常');
@@ -342,7 +340,7 @@ test('特殊字符：全角引号/书名号/括号名字正确落盘', async () 
   const result = await fixZipArchive({ zipPath, outputDir, dryRun: false, extract: true });
   assert.equal(result.applied.extractionFailures, 0);
   const names = fs.readdirSync(path.join(outputDir, '资料'));
-  assert.ok(names.some((name) => name.includes('“示例项目”')), `全角引号应保留，实际：${names.join(' | ')}`);
+  assert.ok(names.some((name) => name.includes('“运维费”')), `全角引号应保留，实际：${names.join(' | ')}`);
   assert.ok(names.some((name) => name.includes('《验收报告》')), '书名号应保留');
 });
 
@@ -472,7 +470,7 @@ test('指纹：GBK 编码指纹与 Python 结果逐字符一致', async () => {
   assert.equal(actual, expected);
   const verified = verifyCandidateName(F.case2.names[0], expected);
   assert.equal(verified.match, 'exact');
-  const wrong = verifyCandidateName('附件1：“示例项目”运维费用汇总表.xlsx', expected);
+  const wrong = verifyCandidateName('附件1：运维费明细表.xlsx', expected);
   assert.equal(wrong.match, 'none');
 });
 
@@ -541,12 +539,193 @@ test('约束：写入目标已存在时绝不覆盖（wx 独占）', async () =>
   }
 });
 
+/* ------------------------------------------------------------------ *
+ * 侧边栏 UI 的 HTTP API（/zipfix-api）集成测试
+ * ------------------------------------------------------------------ */
+
+/**
+ * 启动一个假的 webServer 承载真实的 installZipfixWebApi 路由。
+ * @returns {Promise<{origin: string, server: import('node:http').Server, dispose: () => void}>}
+ */
+async function startWebApi() {
+  const handlers = [];
+  const server = http.createServer((req, res) => {
+    const handler = handlers[0];
+    if (handler === undefined) {
+      res.writeHead(404);
+      res.end();
+      return;
+    }
+    Promise.resolve(handler(req, res)).catch(() => {
+      try {
+        res.destroy();
+      } catch {
+        /* 已断开 */
+      }
+    });
+  });
+  server.listen(0, '127.0.0.1');
+  await once(server, 'listening');
+  const origin = `http://127.0.0.1:${server.address().port}`;
+  const webServer = {
+    getOrigin: () => origin,
+    register: (route) => {
+      handlers.push(route.handler);
+      return () => {
+        const index = handlers.indexOf(route.handler);
+        if (index >= 0) handlers.splice(index, 1);
+      };
+    },
+  };
+  const ctx = {
+    get: (key) => (key === 'webServer' ? webServer : undefined),
+    logger: { warn() {} },
+  };
+  const dispose = installZipfixWebApi(ctx);
+  return { origin, server, dispose };
+}
+
+/** 关闭测试用 HTTP 服务。 */
+async function stopWebApi(api) {
+  api.dispose();
+  api.server.closeAllConnections?.();
+  api.server.close();
+  await once(api.server, 'close');
+}
+
+/** 取 token 并返回带鉴权头的 headers。 */
+async function webToken(origin) {
+  const response = await fetch(`${origin}/zipfix-api/token`);
+  assert.equal(response.status, 200);
+  const payload = await response.json();
+  assert.equal(payload.ok, true);
+  assert.equal(typeof payload.token, 'string');
+  return { token: payload.token, headers: { 'x-zipfix-token': payload.token } };
+}
+
+/** 上传一个夹具 ZIP，返回解析后的响应。 */
+async function webUpload(origin, headers, zipPath) {
+  const body = await fsp.readFile(zipPath);
+  const response = await fetch(
+    `${origin}/zipfix-api/upload?name=${encodeURIComponent(path.basename(zipPath))}`,
+    { method: 'POST', headers: { ...headers, 'content-type': 'application/zip' }, body },
+  );
+  return { status: response.status, payload: await response.json() };
+}
+
+test('Web API：上传 → 体检 → 生成修复版 ZIP → 下载回读校验', async () => {
+  const api = await startWebApi();
+  try {
+    const { headers } = await webToken(api.origin);
+    const uploaded = await webUpload(api.origin, headers, case1Zip);
+    assert.equal(uploaded.status, 200);
+    const upload = uploaded.payload;
+    assert.equal(upload.ok, true);
+    assert.equal(upload.scan.status, 'reversible');
+    assert.equal(upload.scan.encoding, 'gbk');
+    assert.equal(upload.scan.entries.total, F.case1.entries);
+    assert.equal(upload.scan.stripRoot, `${F.case1.strip_root}/`);
+
+    const fixResponse = await fetch(`${api.origin}/zipfix-api/fix`, {
+      method: 'POST',
+      headers: { ...headers, 'content-type': 'application/json' },
+      body: JSON.stringify({ taskId: upload.taskId, stripRoot: true }),
+    });
+    assert.equal(fixResponse.status, 200);
+    const fixed = await fixResponse.json();
+    assert.equal(fixed.ok, true);
+    assert.equal(fixed.result.fixedZip.entries, F.case1.entries);
+    assert.equal(fixed.result.fixedZip.allUtf8Flag, true);
+    assert.equal(fixed.result.fixedZip.fullChecked, true);
+    assert.equal(typeof fixed.downloadUrl, 'string');
+    assert.equal(typeof fixed.reportUrl, 'string');
+
+    const download = await fetch(`${api.origin}${fixed.downloadUrl}`);
+    assert.equal(download.status, 200);
+    const downloadedPath = path.join(workRoot, 'web-fixed.zip');
+    await fsp.writeFile(downloadedPath, Buffer.from(await download.arrayBuffer()));
+    const verification = await verifyFixedZip(downloadedPath, { full: true });
+    assert.equal(verification.entries, F.case1.entries);
+    assert.equal(verification.allUtf8Flag, true);
+    assert.equal(verification.fullChecked, true);
+
+    const report = await fetch(`${api.origin}${fixed.reportUrl}`);
+    assert.equal(report.status, 200);
+    assert.ok((await report.text()).includes('摘要'), '审计报告应包含摘要段');
+
+    const selfcheck = await fetch(`${api.origin}/zipfix-api/selfcheck`, { headers });
+    const self = await selfcheck.json();
+    assert.equal(self.ok, true);
+    assert.equal(self.hostApi, true);
+  } finally {
+    await stopWebApi(api);
+  }
+});
+
+test('Web API：解压到目录 + 安全边界（无 token / 坏 Origin / 非 ZIP）+ 清理', async () => {
+  const api = await startWebApi();
+  try {
+    const { headers } = await webToken(api.origin);
+
+    // 无 token → 403
+    const noToken = await fetch(`${api.origin}/zipfix-api/upload?name=x.zip`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/zip' },
+      body: Buffer.from('x'),
+    });
+    assert.equal(noToken.status, 403);
+
+    // 坏 Origin → 403
+    const badOrigin = await fetch(`${api.origin}/zipfix-api/token`, {
+      headers: { origin: 'https://evil.example' },
+    });
+    assert.equal(badOrigin.status, 403);
+
+    // 非 ZIP → 400
+    const badUpload = await fetch(`${api.origin}/zipfix-api/upload?name=bad.zip`, {
+      method: 'POST',
+      headers: { ...headers, 'content-type': 'application/zip' },
+      body: Buffer.from('not a zip at all'),
+    });
+    assert.equal(badUpload.status, 400);
+
+    const uploaded = await webUpload(api.origin, headers, case1Zip);
+    assert.equal(uploaded.status, 200);
+    const outputDir = path.join(workRoot, 'web-extract');
+    const extractResponse = await fetch(`${api.origin}/zipfix-api/extract`, {
+      method: 'POST',
+      headers: { ...headers, 'content-type': 'application/json' },
+      body: JSON.stringify({ taskId: uploaded.payload.taskId, outputDir, stripRoot: true }),
+    });
+    assert.equal(extractResponse.status, 200);
+    const extracted = await extractResponse.json();
+    assert.equal(extracted.ok, true);
+    assert.equal(extracted.extract.files, F.case1.files);
+    assert.equal(extracted.extract.directories, 11);
+    assert.equal(extracted.extract.failures, 0);
+    const topDirs = fs
+      .readdirSync(outputDir, { withFileTypes: true })
+      .filter((entry) => entry.isDirectory() && entry.name !== '_zipfix-reports');
+    assert.equal(topDirs.length, 11, '剥离冗余顶层目录后应有 11 个一级目录');
+
+    const cleanupResponse = await fetch(`${api.origin}/zipfix-api/cleanup`, {
+      method: 'POST',
+      headers: { ...headers, 'content-type': 'application/json' },
+      body: JSON.stringify({ taskId: uploaded.payload.taskId }),
+    });
+    const cleanup = await cleanupResponse.json();
+    assert.equal(cleanup.removed, true);
+  } finally {
+    await stopWebApi(api);
+  }
+});
+
 test('编码原语：GBK 编码表与 CP437 表自洽', async () => {
-  const chinese = '示例区示例镇';
+  const chinese = '项目资料';
   const bytes = encodeText(chinese, 'gbk');
-  assert.equal(bytes.toString('hex'), 'cabec0fdc7f8cabec0fdd5f2');
-  assert.equal(decodeCp437(bytes), '╩╛└²╟°╩╛└²╒≥');
-  assert.deepEqual(tryReverseName('╩╛└²╟°╩╛└²╒≥').fixed, '示例区示例镇');
+  assert.equal(bytes.toString('hex'), 'cfeec4bfd7cac1cf');
+  assert.equal(decodeCp437(bytes), '╧ε─┐╫╩┴╧');
+  assert.deepEqual(tryReverseName('╧ε─┐╫╩┴╧').fixed, '项目资料');
 });
 
 /* ------------------------------------------------------------------ *

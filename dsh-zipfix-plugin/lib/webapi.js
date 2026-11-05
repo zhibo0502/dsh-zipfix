@@ -319,7 +319,7 @@ export function installZipfixWebApi(ctx) {
     });
   }
 
-  async function handleFix(req, res, body, url) {
+  async function handleFix(req, res, body) {
     const task = taskOrThrow(body.taskId);
     const version = (task.fixVersion ?? 0) + 1;
     task.fixVersion = version;
@@ -442,7 +442,7 @@ export function installZipfixWebApi(ctx) {
   }
 
   async function handleCleanup(req, res, body) {
-    const taskId = body.taskId ?? url?.searchParams?.get('task');
+    const taskId = body.taskId;
     const task = typeof taskId === 'string' ? tasks.get(taskId) : undefined;
     if (task === undefined) {
       sendJson(res, 200, { ok: true, removed: false });
@@ -472,7 +472,7 @@ export function installZipfixWebApi(ctx) {
           origin,
           maxUploadBytes: MAX_UPLOAD_BYTES,
           taskTtlMs: TASK_TTL_MS,
-          version: '0.1.1',
+          version: '0.1.2',
         });
         return;
       }
@@ -513,7 +513,7 @@ export function installZipfixWebApi(ctx) {
       }
       if (method === 'POST' && route === '/fix') {
         const body = await readJsonBody(req);
-        await handleFix(req, res, body, url);
+        await handleFix(req, res, body);
         return;
       }
       if (method === 'POST' && route === '/extract') {
