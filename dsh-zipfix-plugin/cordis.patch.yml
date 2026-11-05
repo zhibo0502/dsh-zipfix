@@ -1,0 +1,9 @@
+# dsh-zipfix bundle patch
+#
+# Inserts one Host plugin row. The row id equals the package name so it stays
+# globally unique and stable across re-installs. The plugin registers five
+# agent-callable tools (zipfix_scan / zipfix_fix_zip / zipfix_rename_dir /
+# zipfix_match_source / zipfix_verify_names) on the tools service.
+- insert:
+    - id: dsh-zipfix
+      name: 'dsh-zipfix'

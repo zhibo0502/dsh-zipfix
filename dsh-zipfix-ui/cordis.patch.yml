@@ -1,0 +1,8 @@
+# dsh-zipfix-ui bundle patch
+#
+# 插入一个 Host+Client 双半插件行：
+# - Host 半：注册 /zipfix-api 上传/修复/下载 HTTP 接口（复用 dsh-zipfix 的同一套修复逻辑）
+# - Client 半：在左侧边栏加入「ZIP 修复」入口，并在主面板渲染上传/体检/修复页面
+- insert:
+    - id: dsh-zipfix-ui
+      name: 'dsh-zipfix-ui'

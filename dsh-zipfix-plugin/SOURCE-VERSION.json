@@ -1,0 +1,69 @@
+{
+  "version": "0.3.0",
+  "frozenAt": "2026-11-05 20:21:09",
+  "note": "v0.3.0：配合侧边栏 UI 增加 lib/webapi.js 与 fixZipArchive.displayName（包内其余修复逻辑不变）。",
+  "aggregateRule": "SHA256 over lines \"<relative/path>:<file-sha256>\" sorted by relative path ascending (String sort), joined with LF, UTF-8 encoded",
+  "aggregate": "1E9C62A64C6E2927F3529A045D171340F914C0850EB8016B270CC226ACF07497",
+  "files": [
+    {
+      "path": "cordis.patch.yml",
+      "sha256": "E0AB782487DFBC3811AE34A0C16D10A5CDC75A372210A6FA2508FF384E07D169",
+      "lastWrite": "2026-11-05 18:52:14"
+    },
+    {
+      "path": "icon.svg",
+      "sha256": "DE92F4CCB08DE7FEC913EC0A589DAE7465E98F97E7CE2C2A372B6571066EAE20",
+      "lastWrite": "2026-11-05 18:52:18"
+    },
+    {
+      "path": "index.js",
+      "sha256": "D95BA9B2D923D41E31ED962FDFAC22681A80A0758E257B0E1B57F0D6AE26450B",
+      "lastWrite": "2026-11-05 19:37:05"
+    },
+    {
+      "path": "lib/detect.js",
+      "sha256": "7A746CB40C33DAFD80458004D3B4A087590834DDE9C50E191EA8C59373CEE931",
+      "lastWrite": "2026-11-05 19:15:34"
+    },
+    {
+      "path": "lib/encoding.js",
+      "sha256": "8C644012BA00857240926499B232FB2150ECF4D9EC51DC2CB992A37BCEDCE851",
+      "lastWrite": "2026-11-05 18:52:36"
+    },
+    {
+      "path": "lib/fix.js",
+      "sha256": "35AA4E28A274AA7635D54F1080DA58E5ADE17871054B744C0356A66BDAB3CA3C",
+      "lastWrite": "2026-11-05 20:18:28"
+    },
+    {
+      "path": "lib/report.js",
+      "sha256": "A58C95EB6FF69B75CF476EEC0AB08C8DD6BD523B1DCFD337CFE7C462B5E939CD",
+      "lastWrite": "2026-11-05 18:54:54"
+    },
+    {
+      "path": "lib/webapi.js",
+      "sha256": "8EE33A43100083F9479D7821B41C0A5F701BE2764928AA35CF940619645895C4",
+      "lastWrite": "2026-11-05 20:18:28"
+    },
+    {
+      "path": "lib/zip.js",
+      "sha256": "6751B0F10555B6F24B82C4F59723772343DD57DF6DAE32278C0F79555F253747",
+      "lastWrite": "2026-11-05 19:00:31"
+    },
+    {
+      "path": "locale/en.json",
+      "sha256": "85DA00B61482205BE65471D64CE1E41E814DF9AEF17BD8CB64E80FF3A7B59ED2",
+      "lastWrite": "2026-11-05 18:52:15"
+    },
+    {
+      "path": "locale/zh.json",
+      "sha256": "D16558EE94C7B6D560AD78A9E1089EB489BE25AEA8CD8EE210888DD32F22A1AA",
+      "lastWrite": "2026-11-05 18:52:16"
+    },
+    {
+      "path": "package.json",
+      "sha256": "7F03E45A973019221CDD23E4711A2DFE86020AC69D85F8AA32476470E021F539",
+      "lastWrite": "2026-11-05 20:20:30"
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "ZIP Fixer Sidebar",
+    "description": "Sidebar panel for the ZIP Chinese filename fixer: upload a ZIP, inspect the detected encoding and damage form, then download a repaired UTF-8-flagged ZIP or extract it with correct filenames into a chosen folder."
+  }
+}
