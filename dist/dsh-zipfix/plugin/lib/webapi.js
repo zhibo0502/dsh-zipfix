@@ -169,6 +169,9 @@ export function installZipfixWebApi(ctx) {
     ctx.logger?.warn?.('zipfix-ui: webServer service unavailable; sidebar API disabled');
     return () => {};
   }
+  // 宿主连接认证：所有路由先过 connection.requestRejection（Host/Origin 围栏 + 浏览器会话认证）。
+  // 拿不到 connection 或检查抛错时一律拒绝，绝不退化到「只检查 Host/Origin/回环」。
+  const connection = ctx.get('connection');
 
   const tempRoot = path.join(os.tmpdir(), 'dsh-zipfix-web');
   const tasks = new Map();
@@ -220,6 +223,25 @@ export function installZipfixWebApi(ctx) {
     const header = req.headers.origin;
     if (typeof header !== 'string' || header.length === 0) return; // 同源 GET/本地工具通常不带 Origin
     if (!allowedOrigins.has(header)) throw new HttpError(403, '请求来源不被允许');
+  }
+
+  /**
+   * 宿主认证准入：交给 DSH 的 connection 服务判断 Host/Origin 围栏与浏览器会话。
+   * 失败关闭（fail closed）：没有 connection 服务、检查抛错、或返回 401/403 都拒绝。
+   */
+  function assertAdmitted(req) {
+    if (connection === undefined || typeof connection.requestRejection !== 'function') {
+      throw new HttpError(403, '宿主认证服务不可用，已拒绝该请求');
+    }
+    let rejection;
+    try {
+      rejection = connection.requestRejection(req);
+    } catch (error) {
+      throw new HttpError(403, `宿主认证检查失败，已拒绝该请求：${error?.message ?? error}`);
+    }
+    if (rejection === undefined) return;
+    if (rejection === 401) throw new HttpError(401, '需要已认证的 DSH 页面会话');
+    throw new HttpError(403, '请求未通过宿主 Host/Origin 围栏');
   }
 
   /** 校验 Host 头，抵御 DNS rebinding：只接受本机绑定的 loopback 主机名。 */
@@ -460,6 +482,7 @@ export function installZipfixWebApi(ctx) {
         sendJson(res, 404, { ok: false, error: 'not found' });
         return;
       }
+      assertAdmitted(req);
       assertOrigin(req);
       assertHost(req);
       const route = url.pathname.slice(WEB_API_PREFIX.length) || '/';
@@ -488,8 +511,8 @@ export function installZipfixWebApi(ctx) {
           const graph = clientModules?.graph?.();
           if (graph !== undefined) {
             const serialized = JSON.stringify(graph);
-            clientRegistered = serialized.includes('dsh-zipfix-ui');
-            mentions = [...new Set(serialized.match(/[^"\\]*dsh-zipfix-ui[^"\\]*/g) ?? [])].slice(0, 20);
+            clientRegistered = /dsh-zipfix(?:-ui)?\/client\.js/u.test(serialized);
+            mentions = [...new Set(serialized.match(/[^"\\]*dsh-zipfix(?:-ui)?[^"\\]*/g) ?? [])].slice(0, 20);
           }
         } catch {
           clientRegistered = false;

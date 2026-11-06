@@ -577,8 +577,17 @@ async function startWebApi() {
       };
     },
   };
+  // 模拟 DSH connection 服务：正常请求放行；测试头用于模拟 401/403 拒绝
+  const connection = {
+    requestRejection(request) {
+      const headers = request.headers ?? {};
+      if (headers['x-test-auth'] === 'none') return 401;
+      if (headers['x-test-trust'] === 'none') return 403;
+      return undefined;
+    },
+  };
   const ctx = {
-    get: (key) => (key === 'webServer' ? webServer : undefined),
+    get: (key) => (key === 'webServer' ? webServer : key === 'connection' ? connection : undefined),
     logger: { warn() {} },
   };
   const dispose = installZipfixWebApi(ctx);
@@ -666,6 +675,12 @@ test('Web API：解压到目录 + 安全边界（无 token / 坏 Origin / 非 ZI
   const api = await startWebApi();
   try {
     const { headers } = await webToken(api.origin);
+
+    // 宿主认证准入：connection.requestRejection 返回 401/403 时一律拒绝（fail closed）
+    const unauth = await fetch(`${api.origin}/zipfix-api/token`, { headers: { 'x-test-auth': 'none' } });
+    assert.equal(unauth.status, 401);
+    const untrusted = await fetch(`${api.origin}/zipfix-api/token`, { headers: { 'x-test-trust': 'none' } });
+    assert.equal(untrusted.status, 403);
 
     // 无 token → 403
     const noToken = await fetch(`${api.origin}/zipfix-api/upload?name=x.zip`, {

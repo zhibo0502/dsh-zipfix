@@ -1,6 +1,6 @@
 {
   "name": "dsh-zipfix",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "private": true,
   "description": "ZIP 中文文件名乱码修复器：嗅探 GBK/GB18030/Big5 文件名编码、按正确名字解压、生成置位 UTF-8 标志的修复版 ZIP、按 size+CRC32 与源包配对还原 U+FFFD 乱码，并用编码指纹验证反推名字。",
   "type": "module",

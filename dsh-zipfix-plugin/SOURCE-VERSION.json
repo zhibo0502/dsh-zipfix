@@ -1,9 +1,9 @@
 {
-  "version": "0.3.1",
-  "frozenAt": "2026-11-05 12:53:41",
-  "note": "v0.3.1：lint 清理（未使用导入/常量、prefer-const、webapi handleCleanup 未定义 url 修复），行为不变；webapi 自检版本号 0.1.2。",
+  "version": "0.3.2",
+  "frozenAt": "2026-11-06 06:55:43",
+  "note": "v0.3.2：/zipfix-api 所有路由先经宿主 connection.requestRejection 认证（fail closed），并保留 CSRF token 作为第二层防护。",
   "aggregateRule": "SHA256 over lines \"<relative/path>:<file-sha256>\" sorted by relative path ascending (String sort), joined with LF, UTF-8 encoded",
-  "aggregate": "CE49DA197579FEE878733B308AA57BD200C5B8BC6EF09725E4ADE5F9AF69F12D",
+  "aggregate": "192C66A70775B0177587E7BF6470C2EFB4DD76C8CBAA0873AA512C0D748CD4C3",
   "files": [
     {
       "path": "cordis.patch.yml",
@@ -42,8 +42,8 @@
     },
     {
       "path": "lib/webapi.js",
-      "sha256": "2CBCA4E89A299C2B194AD288587725291FF123942B376B78C65CF7866D66C565",
-      "lastWrite": "2026-11-05 12:48:15"
+      "sha256": "8079ACA5FCFA3772A93881D6C3A0EACB1A2BAFFA0FFEE6621C31DB72FC84BAA4",
+      "lastWrite": "2026-11-06 06:55:13"
     },
     {
       "path": "lib/zip.js",
@@ -62,8 +62,8 @@
     },
     {
       "path": "package.json",
-      "sha256": "363D36A9DD9CD59CED6B2FB2555DAC9C0321AF4E1DB2448D18E0798C37F45125",
-      "lastWrite": "2026-11-05 12:46:46"
+      "sha256": "313E9FBCD37FD16FD5201B404EB97FC6FE432E43CBB05CD79CFDCF023403CAFC",
+      "lastWrite": "2026-11-06 06:55:42"
     }
   ]
 }
