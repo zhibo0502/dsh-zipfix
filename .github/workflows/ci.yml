@@ -26,7 +26,7 @@ jobs:
       - run: npm run lint
 
   test:
-    name: Tests (Node 22 + Python 3.12)
+    name: Tests & package checks (Node 22 + Python 3.12)
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v7
@@ -39,6 +39,8 @@ jobs:
           python-version: '3.12'
       - run: npm ci
       - run: npm test
+      - run: npm run build:check
+      - run: npm run validate:index
 
   formal:
     name: Formal verification (TLA+/TLC)

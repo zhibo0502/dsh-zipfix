@@ -9,10 +9,15 @@
   },
   "scripts": {
     "lint": "eslint . --max-warnings=0",
-    "test": "node dsh-zipfix-plugin/test/run-tests.mjs",
-    "formal": "node tools/tla-run.mjs"
+    "test": "node dsh-zipfix-plugin/test/run-tests.mjs && node tools/check-dist.mjs",
+    "formal": "node tools/tla-run.mjs",
+    "build": "node tools/build-dist.mjs",
+    "build:check": "node tools/build-dist.mjs --check",
+    "market:index": "node tools/write-market-index.mjs",
+    "validate:index": "node tools/validate-index.mjs"
   },
   "devDependencies": {
+    "@deepseek-ai/dsh-plugin-market-index": "^0.2.1-alpha.4",
     "@eslint/js": "^9.0.0",
     "eslint": "^9.0.0",
     "globals": "^16.0.0"

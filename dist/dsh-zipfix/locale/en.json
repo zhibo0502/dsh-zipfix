@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "ZIP Filename Fixer",
+    "description": "Repairs mojibake Chinese filenames inside ZIP archives and extracted folders: sniffs GBK/GB18030/Big5 entry names, extracts with correct names and per-entry CRC32 verification, writes a repaired ZIP with the UTF-8 filename flag set, pairs irreversible U+FFFD damage against a source ZIP by (size, CRC32), and verifies reconstructed names by encoding fingerprint. Includes a sidebar panel (upload ZIP → inspect → download or extract). Never deletes or overwrites the originals."
+  }
+}

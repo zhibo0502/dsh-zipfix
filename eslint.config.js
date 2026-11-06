@@ -16,6 +16,7 @@ export default [
     ignores: [
       '**/node_modules/**',
       '.tools/**',
+      'dist/**',
       'dsh-zipfix-plugin/test/fixtures/**',
       'spec/**',
       'coverage/**',

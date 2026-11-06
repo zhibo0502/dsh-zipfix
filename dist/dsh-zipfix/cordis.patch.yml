@@ -1,0 +1,4 @@
+# dsh-zipfix 发布包（自动生成）：安装后出现一行 dsh-zipfix，同时提供工具与侧边栏 UI
+- insert:
+    - id: dsh-zipfix
+      name: 'dsh-zipfix'

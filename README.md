@@ -43,7 +43,7 @@ plugin_manager { action: "install_bundle", target: "<仓库目录>/dsh-zipfix-ui
 | 门禁 | 本地命令 | 内容 |
 |---|---|---|
 | 静态检查 | `npm run lint` | ESLint 9 flat config，覆盖两个包全部 JS + 测试；`--max-warnings=0` |
-| 自动化测试 | `npm test` | 30 项 Node 断言：Python 独立编码器生成的合成夹具（62 条目 GBK / flag=0x0008 / CP437 / Latin-1 / U+FFFD / OOXML 标题 / ZIP64 / 不覆盖），以及 `/zipfix-api` 上传→体检→修复→下载→解压→安全边界集成测试 |
+| 自动化测试 | `npm test` | 30 项 Node 断言：Python 独立编码器生成的合成夹具（62 条目 GBK / flag=0x0008 / CP437 / Latin-1 / U+FFFD / OOXML 标题 / ZIP64 / 不覆盖），`/zipfix-api` 上传→体检→修复→下载→解压→安全边界集成测试，以及 `dist` 发布包冒烟（5 个工具注册 + 客户端模块 id）；`npm run build:check` 校验发布包与源码同步，`npm run validate:index` 用官方校验器校验插件市场索引 |
 | 形式化验证 | `npm run formal` | TLA+ 规格 + TLC 模型检查（见下） |
 | CI | `.github/workflows/ci.yml` | `lint` / `test`（Node 22 + Python 3.12）/ `formal`（Java 21 + TLC）三个 job |
 
@@ -66,18 +66,48 @@ plugin_manager { action: "install_bundle", target: "<仓库目录>/dsh-zipfix-ui
   不含任何真实用户文件、真实项目名或压缩包内容。
 - 独立验收的原始报告包含真实文件清单与哈希，为隐私起见未随仓库发布。
 
+## 发布到 DSH 插件市场
+
+第三方无法直接写入 DSH 的**官方内置**插件列表（列表编译在安装包里，只有 `@deepseek-ai/*` 官方 bundle 能进入）。
+第三方插件的标准发布方式是：**发布一个 format 1 插件市场索引**（官方实验性「自定义插件市场」支持），
+以及/或者提交到社区插件市场（dshopen.org、deepseek1024.com、dsh.market）。
+
+本仓库已准备好：
+
+- [`dist/dsh-zipfix/`](dist/dsh-zipfix/README.md)：可安装/可发布的单包（工具 + 侧边栏 UI 合体），由两个源码包组装，
+  解决「Git 安装只打包子目录」导致的引用缺失；
+- [`plugin-index.json`](plugin-index.json)：format 1 索引，Git 安装来源（commit 固定）；用户把它加入 DSH 的
+  「发现 → 添加索引源」即可看到并安装本插件：
+
+  ```text
+  https://raw.githubusercontent.com/zhibo0502/dsh-zipfix/main/plugin-index.json
+  ```
+
+- `npm run build` / `npm run build:check`：生成/校验 dist 与源码同步；
+- `npm run validate:index`：用 DSH 官方 `parseMarketIndex` 校验索引，并核对 dist 一致；
+- `docs/publishing.md`：[完整发布指南](docs/publishing.md)（官方/社区渠道、npm 发布、收录流程、GitHub topic 说明）。
+
+GitHub Topics 不支持空格与大写，「DeepSeek Harness Plugins」对应的 topic 是 **`deepseek-harness-plugins`**
+（本仓库已加入，另含 `dsh-plugin`、`dsh-bundle`、`deepseek-harness` 等）。
+
 ## 目录结构
 
 ```text
 README.md
 LICENSE
-package.json            # 仓库工具（lint / test / formal）
+package.json            # 仓库工具（lint / test / formal / build / market:index / validate:index）
 eslint.config.js
 .github/workflows/ci.yml
-dsh-zipfix-plugin/      # Host 工具包（5 个工具 + 修复核心 + 自测）
-dsh-zipfix-ui/          # 侧边栏 UI 包（Host API + Web Client）
+docs/publishing.md      # 插件市场发布指南
+dsh-zipfix-plugin/      # Host 工具包源码（5 个工具 + 修复核心 + 自测）
+dsh-zipfix-ui/          # 侧边栏 UI 包源码（Host API + Web Client）
+dist/dsh-zipfix/        # 可发布单包（由 tools/build-dist.mjs 自动生成）
+plugin-index.json       # format 1 插件市场索引
 spec/                   # TLA+ 规格与 TLC 配置
 tools/tla-run.mjs       # TLC 运行器（CI 与本地共用）
+tools/build-dist.mjs    # dist 组装脚本（--check 供 CI 使用）
+tools/write-market-index.mjs  # 索引生成
+tools/validate-index.mjs      # 官方 format 1 索引校验
 ```
 
 ## License
