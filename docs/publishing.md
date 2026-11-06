@@ -24,8 +24,13 @@
 | `tools/write-market-index.mjs` | 生成索引（可切 Git / npm 来源） |
 | `tools/validate-index.mjs` | 用 DSH 官方校验器校验索引并核对 dist 一致性 |
 
-发布包版本来自 `dist/dsh-zipfix/package.json`（当前 `0.4.0`），与源码包的 `0.3.1` / `0.1.2` 独立演进；
+发布包版本来自 `dist/dsh-zipfix/package.json`（当前 `0.4.0`），与源码包的 `0.3.2` / `0.1.2` 独立演进；
 两者都保留在仓库里，前者面向「插件市场安装」，后者面向本地开发与源码阅读。
+
+安全边界（社区市场安全审查关注点）：`/zipfix-api` 的**所有**路由在处理前先调用
+`connection.requestRejection(req)` 做宿主认证（Host/Origin 围栏 + 浏览器会话）；`connection` 缺失或检查抛错时
+一律拒绝（fail closed），不会退化为只检查 Host/Origin/回环；在宿主认证之后还有同源随机 token 作为 CSRF 第二层防护。
+索引与清单文件见 [`plugin-index.json`](../plugin-index.json) 与 [`dist/dsh-zipfix/package.json`](../dist/dsh-zipfix/package.json)。
 
 ## 3. 发布流程（Git 来源，无需 npm 账号）
 
