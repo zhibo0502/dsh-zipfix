@@ -61,12 +61,10 @@
       "versions": [
         {
           "version": "0.4.0",
-          "publishTimestamp": 1793952424,
+          "publishTimestamp": 1793956339,
           "source": {
-            "type": "git",
-            "url": "https://github.com/zhibo0502/dsh-zipfix",
-            "commit": "31726b44b7cf8f2372966fd66740c2a2d3743bd9",
-            "path": "dist/dsh-zipfix"
+            "type": "npm",
+            "registry": "https://registry.npmjs.org/"
           },
           "engines": {
             "dsh": "*"

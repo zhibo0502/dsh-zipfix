@@ -4,7 +4,12 @@
 
 ## npm
 
+当前已发布：**`dsh-zipfix@0.4.0`**（https://www.npmjs.com/package/dsh-zipfix ，`latest`）。
+
+发布新版本：
+
 ```bash
+# 先更新 dist/dsh-zipfix/package.json 的 version
 npm login
 cd dist/dsh-zipfix
 npm publish --access public
@@ -17,15 +22,15 @@ npm view dsh-zipfix version
 pnpm add dsh-zipfix
 ```
 
-发布后把索引切换到 npm 来源并提交：
+索引使用 npm 来源时无需再固定 commit；升级只需更新索引里的版本列表：
 
 ```bash
 node tools/write-market-index.mjs --source npm --commit "$(git rev-parse HEAD)"
 npm run validate:index
-git add plugin-index.json && git commit -m "market: switch to npm source" && git push
+git add plugin-index.json && git commit -m "market: update npm version" && git push
 ```
 
-未发布 npm 前，索引使用固定 Git commit（`source.type = "git"` + `path: dist/dsh-zipfix`），同样可安装。
+> 若 token 只有 `Read and write (stage only)` 权限，需改用 `npm stage publish`，再由维护者用 2FA 审批；首个版本必须用 direct 权限的 token 发布。
 
 ## DSH Plugin Market
 
@@ -47,8 +52,8 @@ cd dist/dsh-zipfix && npm pack --dry-run
 
 ## Community marketplaces
 
-- dshopen.org：https://github.com/polang233/dsh-plugin-index/issues/285 （已提交，审核中）
-- deepseek1024.com：https://github.com/imsai-sh/awesome-deepseek-harness-plugins/pull/836 （已自动合并；npm 发布后安装按钮自动出现）
+- dshopen.org：https://github.com/polang233/dsh-plugin-index/issues/285 （已提交，已补充 npm 版本，审核中）
+- deepseek1024.com：https://github.com/imsai-sh/awesome-deepseek-harness-plugins/pull/836 （已自动合并；npm 已发布，安装按钮由目录自动检测，无需再提 PR）
 - dsh.market：按 GitHub topic 自动采集，无需提交
 
 ## GitHub topics

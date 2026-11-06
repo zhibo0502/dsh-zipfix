@@ -1,6 +1,7 @@
 # dsh-zipfix
 
 [![CI](https://github.com/zhibo0502/dsh-zipfix/actions/workflows/ci.yml/badge.svg)](https://github.com/zhibo0502/dsh-zipfix/actions/workflows/ci.yml)
+[![npm](https://img.shields.io/npm/v/dsh-zipfix.svg)](https://www.npmjs.com/package/dsh-zipfix)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Node](https://img.shields.io/badge/node-%3E%3D22.12-339933.svg)](https://nodejs.org/)
 
@@ -27,13 +28,19 @@ ZIP 里的文件名如果按 GBK/Big5 编码写入却未置位 UTF-8 标志（�
 
 ## Install
 
+npm 包 [`dsh-zipfix`](https://www.npmjs.com/package/dsh-zipfix)（registry.npmjs.org），在 DSH 中安装：
+
+```powershell
+plugin_manager { action: "install_bundle", target: "dsh-zipfix@0.4.0" }
+```
+
 DSH 插件市场索引（发现 → 添加索引源）：
 
 ```text
 https://raw.githubusercontent.com/zhibo0502/dsh-zipfix/main/plugin-index.json
 ```
 
-本地目录安装（或 `plugin_manager` 从 npm 安装 `dsh-zipfix@<version>`）：
+本地目录安装：
 
 ```powershell
 plugin_manager { action: "install_bundle", target: "<仓库目录>/dist/dsh-zipfix" }
