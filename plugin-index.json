@@ -61,11 +61,11 @@
       "versions": [
         {
           "version": "0.4.0",
-          "publishTimestamp": 1793948193,
+          "publishTimestamp": 1793948267,
           "source": {
             "type": "git",
             "url": "https://github.com/zhibo0502/dsh-zipfix",
-            "commit": "1e22d298526c2a6fcf6524eb765e8533f28ba202",
+            "commit": "c47bc0ba420d47fc35140d5288ddb66b97944335",
             "path": "dist/dsh-zipfix"
           },
           "engines": {
