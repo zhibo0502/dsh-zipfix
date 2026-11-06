@@ -12,6 +12,8 @@ DeepSeek Harness 插件：修复 ZIP 压缩包与已解压目录中的中文文�
 
 ## 安装
 
+npm：[`dsh-zipfix`](https://www.npmjs.com/package/dsh-zipfix)（DSH 中执行 `plugin_manager { action: "install_bundle", target: "dsh-zipfix@0.4.0" }`）。
+
 DSH 插件市场（发现 → 添加索引源）：
 
 ```text
