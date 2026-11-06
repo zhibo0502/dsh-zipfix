@@ -1,0 +1,78 @@
+{
+  "format": 1,
+  "title": {
+    "en": "ZIP Filename Fixer",
+    "zh": "ZIP 文件名修复器"
+  },
+  "description": {
+    "en": "Repair mojibake Chinese filenames in ZIP archives: encoding sniffing, CRC-verified extraction, a repaired ZIP with the UTF-8 filename flag set, and source-archive CRC pairing for irreversible U+FFFD damage. Includes an agent tool set and a sidebar upload panel.",
+    "zh": "修复 ZIP 压缩包里的中文文件名乱码：编码嗅探、逐条 CRC32 校验解压、生成置位 UTF-8 文件名标志的修复版 ZIP，并对不可逆的 U+FFFD 乱码按源包 (size, CRC32) 配对还原。含 agent 工具与侧边栏上传面板。"
+  },
+  "metadata": {
+    "categories": {
+      "tools": {
+        "title": {
+          "en": "Tools & Capabilities",
+          "zh": "工具与能力"
+        }
+      },
+      "ui": {
+        "title": {
+          "en": "UI Enhancements",
+          "zh": "界面增强"
+        }
+      }
+    },
+    "labels": {},
+    "sortKeys": {}
+  },
+  "plugins": [
+    {
+      "name": "dsh-zipfix",
+      "title": {
+        "en": "ZIP Filename Fixer",
+        "zh": "ZIP 中文文件名修复器"
+      },
+      "description": {
+        "en": "Repairs mojibake Chinese filenames inside ZIP archives and extracted folders: 5 agent tools plus a sidebar upload panel (detect encoding, download a repaired UTF-8-flagged ZIP, or extract with correct names). Never deletes or overwrites the originals.",
+        "zh": "修复 ZIP 压缩包与已解压目录里的中文文件名乱码：5 个 agent 工具 + 侧边栏上传面板（体检编码、下载置位 UTF-8 标志的修复版 ZIP、或按正确文件名解压）。绝不删除、绝不覆盖原文件。"
+      },
+      "icon": "dist/dsh-zipfix/icon.svg",
+      "author": "zhibo0502",
+      "homepage": "https://github.com/zhibo0502/dsh-zipfix#readme",
+      "repository": {
+        "url": "https://github.com/zhibo0502/dsh-zipfix",
+        "directory": "dist/dsh-zipfix"
+      },
+      "metadata": {
+        "category": "tools",
+        "keywords": [
+          "dsh-plugin",
+          "deepseek-harness",
+          "zip",
+          "filename",
+          "gbk",
+          "mojibake",
+          "chinese"
+        ],
+        "labels": [],
+        "sortKeys": {}
+      },
+      "versions": [
+        {
+          "version": "0.4.0",
+          "publishTimestamp": 1793947965,
+          "source": {
+            "type": "git",
+            "url": "https://github.com/zhibo0502/dsh-zipfix",
+            "commit": "1a5999ad16c1297a5d5147f32a00e68c6b895bb2",
+            "path": "dist/dsh-zipfix"
+          },
+          "engines": {
+            "dsh": "*"
+          }
+        }
+      ]
+    }
+  ]
+}
