@@ -9,6 +9,7 @@
     ".": "./index.js",
     "./client": "./client.js",
     "./icon": "./icon.svg",
+    "./cordis.patch.yml": "./cordis.patch.yml",
     "./locale/*.json": "./locale/*.json",
     "./package.json": "./package.json"
   },
@@ -20,9 +21,8 @@
     "locale",
     "plugin/index.js",
     "plugin/lib",
-    "ui/index.js",
-    "README.md",
-    "LICENSE"
+    "plugin/locale",
+    "ui/index.js"
   ],
   "engines": {
     "node": ">=22.12.0"
@@ -35,11 +35,34 @@
     "filename",
     "gbk",
     "mojibake",
-    "chinese"
+    "chinese",
+    "cordis"
   ],
+  "author": {
+    "name": "zhibo0502",
+    "url": "https://github.com/zhibo0502"
+  },
+  "homepage": "https://github.com/zhibo0502/dsh-zipfix#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zhibo0502/dsh-zipfix.git",
+    "directory": "dist/dsh-zipfix"
+  },
+  "bugs": {
+    "url": "https://github.com/zhibo0502/dsh-zipfix/issues"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
   "dsh": {
     "bundle": {
       "patch": "./cordis.patch.yml"
+    },
+    "compatibility": {
+      "dshReleases": {
+        "0.2.2-rc.1": "compatible"
+      }
     },
     "client": {
       "platform": "web",

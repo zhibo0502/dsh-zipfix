@@ -46,5 +46,18 @@
       ]
     }
   },
-  "license": "MIT"
+  "license": "MIT",
+  "author": {
+    "name": "zhibo0502",
+    "url": "https://github.com/zhibo0502"
+  },
+  "homepage": "https://github.com/zhibo0502/dsh-zipfix#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zhibo0502/dsh-zipfix.git",
+    "directory": "dsh-zipfix-ui"
+  },
+  "bugs": {
+    "url": "https://github.com/zhibo0502/dsh-zipfix/issues"
+  }
 }

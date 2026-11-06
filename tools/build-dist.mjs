@@ -32,6 +32,8 @@ const UI = path.join(REPO, 'dsh-zipfix-ui');
 const PACKAGE_NAME = 'dsh-zipfix';
 const VERSION = '0.4.0';
 const NODE_ENGINE = '>=22.12.0';
+const REPO_URL = 'https://github.com/zhibo0502/dsh-zipfix';
+const NPM_REGISTRY = 'https://registry.npmjs.org/';
 
 /** Host 入口：把工具包与 UI 的 Host 半合到一个 bundle row 里。 */
 const HOST_ENTRY = `/**
@@ -83,26 +85,41 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 `;
 
-const DIST_README = `# dsh-zipfix（发布包）
+const DIST_README = `# dsh-zipfix
 
-DeepSeek Harness 的 ZIP 中文文件名乱码修复插件：5 个 agent 工具 + 侧边栏「ZIP 修复」上传面板。
-本目录由 \`tools/build-dist.mjs\` 从仓库源码自动生成，请不要直接编辑。
+DeepSeek Harness 插件：修复 ZIP 压缩包与已解压目录中的中文文件名乱码。提供 5 个 agent 工具和一个侧边栏上传面板。
 
-- 源码仓库：https://github.com/zhibo0502/dsh-zipfix
-- 许可证：MIT
+## 功能
+
+- 读取 ZIP 中央目录原始文件名字节，嗅探 UTF-8 / GBK / GB18030 / Big5 编码
+- 按正确文件名解压，逐条校验 CRC32；生成置位 UTF-8 文件名标志（0x0800）的修复版 ZIP
+- 对 U+FFFD 不可逆乱码，按源包 \`(size, CRC32)\` 唯一配对还原，并用编码指纹验证
+- 5 个工具：\`zipfix_scan\`、\`zipfix_fix_zip\`、\`zipfix_rename_dir\`、\`zipfix_match_source\`、\`zipfix_verify_names\`
+- 侧边栏「ZIP 修复」：上传 ZIP → 体检 → 下载修复版 ZIP / 按正确文件名解压
 
 ## 安装
 
-推荐在 DSH 的插件市场（发现 → 添加索引源：
-\`https://raw.githubusercontent.com/zhibo0502/dsh-zipfix/main/plugin-index.json\`）里安装；
-也可以直接使用本目录：
+DSH 插件市场（发现 → 添加索引源）：
+
+\`\`\`text
+https://raw.githubusercontent.com/zhibo0502/dsh-zipfix/main/plugin-index.json
+\`\`\`
+
+本地目录安装：
 
 \`\`\`powershell
 plugin_manager { action: "install_bundle", target: "<本目录绝对路径>" }
 \`\`\`
 
-安装后在任意会话中可用 \`zipfix_scan\` / \`zipfix_fix_zip\` / \`zipfix_rename_dir\` /
-\`zipfix_match_source\` / \`zipfix_verify_names\` 五个工具，左侧边栏出现「ZIP 修复」入口。
+## 安全
+
+- 绝不删除、绝不覆盖源文件；同名目标自动加 \`_fixed\` 后缀；写操作默认 dry-run
+- \`/zipfix-api\` 所有路由先经 \`connection.requestRejection\` 宿主认证（fail closed）
+- 零运行时依赖，无网络请求
+
+## License
+
+MIT · https://github.com/zhibo0502/dsh-zipfix
 `;
 
 const zhLocale = {
@@ -167,14 +184,31 @@ function collectFiles() {
       '.': './index.js',
       './client': './client.js',
       './icon': './icon.svg',
+      './cordis.patch.yml': './cordis.patch.yml',
       './locale/*.json': './locale/*.json',
       './package.json': './package.json',
     },
-    files: ['index.js', 'client.js', 'cordis.patch.yml', 'icon.svg', 'locale', 'plugin/index.js', 'plugin/lib', 'ui/index.js', 'README.md', 'LICENSE'],
+    files: [
+      'index.js',
+      'client.js',
+      'cordis.patch.yml',
+      'icon.svg',
+      'locale',
+      'plugin/index.js',
+      'plugin/lib',
+      'plugin/locale',
+      'ui/index.js',
+    ],
     engines: { node: NODE_ENGINE },
-    keywords: ['dsh', 'dsh-plugin', 'deepseek-harness', 'zip', 'filename', 'gbk', 'mojibake', 'chinese'],
+    keywords: ['dsh', 'dsh-plugin', 'deepseek-harness', 'zip', 'filename', 'gbk', 'mojibake', 'chinese', 'cordis'],
+    author: { name: 'zhibo0502', url: 'https://github.com/zhibo0502' },
+    homepage: `${REPO_URL}#readme`,
+    repository: { type: 'git', url: `git+${REPO_URL}.git`, directory: 'dist/dsh-zipfix' },
+    bugs: { url: `${REPO_URL}/issues` },
+    publishConfig: { access: 'public', registry: NPM_REGISTRY },
     dsh: {
       bundle: { patch: './cordis.patch.yml' },
+      compatibility: { dshReleases: { '0.2.2-rc.1': 'compatible' } },
       client: {
         platform: 'web',
         immediately: true,
